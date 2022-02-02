@@ -2,6 +2,39 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: >-
   This template configures resources in the DevOps Account
 Resources:
+  # ----------
+  # ROLES
+  # ----------
+
+  # Access Role for CodePipeLine
+  CodePipeLineExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codepipeline.amazonaws.com
+            Action: 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/AdministratorAccess'
+
+  # Access Role for CodeBuild
+  CodeBuildExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          Effect: Allow
+          Principal:
+            Service: codebuild.amazonaws.com
+          Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess
+
+  # ----------
+  # ECR Repository
+  # ----------
   ContainerRepository: 
     Type: AWS::ECR::Repository
     Properties: 
@@ -9,3 +42,71 @@ Resources:
       ImageTagMutability: MUTABLE
       ImageScanningConfiguration: 
         ScanOnPush: true
+
+  # ----------
+  # CODEPIPELINE
+  # ----------
+  FiberAPIBuild:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: Fiber-API-Build
+      Artifacts: 
+        Type: CODEPIPELINE
+      Environment: 
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/amazonlinux2-x86_64-standard:3.0
+        ImagePullCredentialsType: CODEBUILD
+        PrivilegedMode: True
+        Type: LINUX_CONTAINER
+        EnvironmentVariables:
+          - Name: ECR_REPOSITORY_URI
+            Value: !Join [ ".", [ !Ref "AWS::AccountId", "dkr.ecr", !Ref "AWS::Region", !Join [ "/", [ "amazonaws.com", !Ref "ContainerRepository" ] ] ] ]
+      ServiceRole: !Ref CodeBuildExecutionRole
+      Source:
+        Type: CODEPIPELINE
+        # This file (buildspec.yml In Source code) contains commands to Create and Push a docker image to the ECR_REPOSITORY_URI
+        BuildSpec: buildspec.yml
+
+  # Create CodePipeline with 2 stages (Source, Build)
+  FiberAPIPipeline: 
+    Type: AWS::CodePipeline::Pipeline 
+    Properties: 
+      RoleArn: "arn:aws:iam::387310632530:role/service-role/AWSCodePipelineServiceRole-eu-west-1-DevOps-CloudFormation"
+      Stages: 
+
+        # Download source code from Github Repo to source-output-artifacts path in S3 Bucket
+        - 
+          Name: Source
+          Actions:
+            - Name: Fiber-API-Source
+              ActionTypeId:
+                Version: '1'
+                Owner: AWS
+                Category: Source
+                Provider: CodeStarSourceConnection
+              Configuration:
+                ConnectionArn: "arn:aws:codestar-connections:eu-west-1:387310632530:connection/b8d7c6ba-aead-4ab3-9f67-bc453cf0e924"
+                FullRepositoryId: "Travel-Project-2022/fiber-api"
+                BranchName: "master"
+                OutputArtifactFormat: "CODE_ZIP"
+              RunOrder: 1
+              OutputArtifacts:
+                - Name: source-output-artifacts
+
+        # Build the project using the BuildProject and Output build artifacts to build-output-artifacts path in S3 Bucket
+        - 
+          Name: Build
+          Actions:
+            - Name: Build
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: 1
+                Provider: CodeBuild
+              InputArtifacts:
+                - Name: source-output-artifacts
+              Configuration:
+                  ProjectName: !Ref FiberAPIBuild
+              RunOrder: 1
+              OutputArtifacts:
+                - Name: build-output-artifacts
