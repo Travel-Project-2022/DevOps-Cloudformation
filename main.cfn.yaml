@@ -1,0 +1,11 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  This template configures resources in the DevOps Account
+Resources:
+  ContainerRepository: 
+    Type: AWS::ECR::Repository
+    Properties: 
+      RepositoryName: "fiber-api-repository"
+      ImageTagMutability: MUTABLE
+      ImageScanningConfiguration: 
+        ScanOnPush: true
