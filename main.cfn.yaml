@@ -50,7 +50,7 @@ Resources:
   CodePipelineArtifactsS3Bucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: 'Fiber-API-CodePipeline-Artifacts'
+      BucketName: 'fiber-api-codepipeline-artifacts'
 
   # Create the BuildProject with required Build information
   FiberAPIBuild:
