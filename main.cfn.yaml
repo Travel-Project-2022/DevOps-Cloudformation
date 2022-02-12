@@ -44,10 +44,10 @@ Resources:
         ScanOnPush: true
 
   # ----------
-  # CODEPIPELINE
+  # CODEPIPELINE - Fiber API
   # ----------
   # S3 Bucket for build artifacts
-  CodePipelineArtifactsS3Bucket:
+  FiberAPICodePipelineArtifactsS3Bucket:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: 'fiber-api-codepipeline-artifacts'
@@ -81,7 +81,7 @@ Resources:
       Name: Fiber-API-CodePipeline
       ArtifactStore:
         Type: S3
-        Location: !Ref CodePipelineArtifactsS3Bucket
+        Location: !Ref FiberAPICodePipelineArtifactsS3Bucket
       RestartExecutionOnUpdate: False
       RoleArn:
         Fn::GetAtt: [ CodePipeLineExecutionRole, Arn ]
@@ -99,7 +99,7 @@ Resources:
                 Provider: CodeStarSourceConnection
               Configuration:
                 ConnectionArn: "arn:aws:codestar-connections:eu-west-1:387310632530:connection/b8d7c6ba-aead-4ab3-9f67-bc453cf0e924"
-                FullRepositoryId: "Travel-Project-2022/fiber-api"
+                FullRepositoryId: "Travel-Project-2022/Fiber-API"
                 BranchName: "master"
                 OutputArtifactFormat: "CODE_ZIP"
               RunOrder: 1
@@ -123,3 +123,58 @@ Resources:
               RunOrder: 1
               OutputArtifacts:
                 - Name: build-output-artifacts
+
+  # ----------
+  # CODEPIPELINE - Fiber API Infrastructure
+  # ----------
+  FiberAPIInfrastructureCodePipelineArtifactsS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: 'fiber-api-infrastructure-codepipeline-artifacts'
+
+  # Create CodePipeline with 2 stages (Source, Build)
+  FiberAPIInfrastructurePipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      Name: Fiber-API-Infrastructure-CodePipeline
+      ArtifactStore:
+        Type: S3
+        Location: !Ref FiberAPIInfrastructureCodePipelineArtifactsS3Bucket
+      RestartExecutionOnUpdate: False
+      RoleArn:
+        Fn::GetAtt: [ CodePipeLineExecutionRole, Arn ]
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: Fiber-API-Cloudformation-Source
+              ActionTypeId:
+                Version: '1'
+                Owner: AWS
+                Category: Source
+                Provider: CodeStarSourceConnection
+              Configuration:
+                ConnectionArn: "arn:aws:codestar-connections:eu-west-1:387310632530:connection/b8d7c6ba-aead-4ab3-9f67-bc453cf0e924"
+                FullRepositoryId: "Travel-Project-2022/Fiber-API-CloudFormation"
+                BranchName: "master"
+                OutputArtifactFormat: "CODE_ZIP"
+              RunOrder: 1
+              OutputArtifacts:
+                - Name: source-output-artifacts
+        - Name: Deploy
+          Actions:
+            - Name: Deploy
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: 1
+              InputArtifacts:
+                - Name: source-output-artifacts
+              Configuration:
+                ActionMode: CREATE_UPDATE
+                Capabilities: CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
+                RoleArn: 'arn:aws:iam::387310632530:role/CloudFormation-Role'
+                StackName: Fiber-API-Infrastructure
+                TemplatePath: 'source-output-artifacts::main.cfn.yaml'
+              RunOrder: 1
+              OutputArtifacts: []
