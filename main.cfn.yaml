@@ -5,7 +5,6 @@ Resources:
   # ----------
   # ROLES
   # ----------
-
   # Access Role for CodePipeLine
   CodePipeLineExecutionRole:
     Type: AWS::IAM::Role
@@ -126,6 +125,53 @@ Resources:
   # ----------
   # CODEPIPELINE - Fiber API Infrastructure
   # ----------
+  FiberAPIInfrastructureKMSKey:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: Used by Assumed Roles in Test/Prod accounts to Encrypt/Decrypt code
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: "2012-10-17"
+        Id: FiberAPIInfrastructure-Key
+        Statement:
+          - Sid: Allows admin of the key
+            Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action:
+              - "kms:Create*"
+              - "kms:Describe*"
+              - "kms:Enable*"
+              - "kms:List*"
+              - "kms:Put*"
+              - "kms:Update*"
+              - "kms:Revoke*"
+              - "kms:Disable*"
+              - "kms:Get*"
+              - "kms:Delete*"
+              - "kms:ScheduleKeyDeletion"
+              - "kms:CancelKeyDeletion"
+            Resource: "*"
+          - Sid: Allow use of the key for CryptoGraphy Lambda
+            Effect: Allow
+            Principal:
+              AWS:
+                - arn:aws:iam::427785492434:root
+                - !GetAtt CodePipeLineExecutionRole.Arn
+            Action:
+              - kms:Encrypt
+              - kms:Decrypt
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+              - kms:DescribeKey
+            Resource: "*"
+
+  KMSAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: alias/FiberAPIInfrastructure-xaccounts
+      TargetKeyId: !Ref KMSKey
+
   FiberAPIInfrastructureCodePipelineArtifactsS3Bucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -157,6 +203,9 @@ Resources:
       ArtifactStore:
         Type: S3
         Location: !Ref FiberAPIInfrastructureCodePipelineArtifactsS3Bucket
+        EncryptionKey:
+          Id: !GetAtt FiberAPIInfrastructureKMSKey.Arn
+          Type: KMS
       RestartExecutionOnUpdate: False
       RoleArn: !GetAtt CodePipeLineExecutionRole.Arn
       Stages:
