@@ -170,7 +170,7 @@ Resources:
     Type: AWS::KMS::Alias
     Properties:
       AliasName: alias/FiberAPIInfrastructure-xaccounts
-      TargetKeyId: !Ref KMSKey
+      TargetKeyId: !Ref FiberAPIInfrastructureKMSKey
 
   FiberAPIInfrastructureCodePipelineArtifactsS3Bucket:
     Type: AWS::S3::Bucket
