@@ -170,10 +170,11 @@ Resources:
                 Version: 1
               InputArtifacts:
                 - Name: source-output-artifacts
+              RoleArn: arn:aws:iam::427785492434:role/DevOps-Account-CodePipeline-Role
               Configuration:
                 ActionMode: CREATE_UPDATE
                 Capabilities: CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
-                RoleArn: 'arn:aws:iam::387310632530:role/CloudFormation-Role'
+                RoleArn: arn:aws:iam::427785492434:role/CloudFormation-Role
                 StackName: Fiber-API-Infrastructure
                 TemplatePath: 'source-output-artifacts::main.cfn.yaml'
               RunOrder: 1

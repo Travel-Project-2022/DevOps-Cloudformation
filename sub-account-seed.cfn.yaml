@@ -1,0 +1,36 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Role to be assumed by CodePipeline service cross account
+
+Resources:
+  # ----------
+  # IAM ROLES
+  # ----------
+  CFRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: DevOps-Account-CodePipeline-Role
+      AssumeRolePolicyDocument:
+        Statement:
+          Effect: Allow
+          Principal:
+            AWS:
+              - 387310632530 # Travel-Project-2022-DevOps
+          Action:
+            - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess
+
+  CFDeployerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: CloudFormation-Role
+      AssumeRolePolicyDocument:
+        Statement:
+          Effect: Allow
+          Principal:
+            Service:
+              - cloudformation.amazonaws.com
+          Action:
+            - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess
