@@ -41,6 +41,19 @@ Resources:
       ImageTagMutability: MUTABLE
       ImageScanningConfiguration: 
         ScanOnPush: true
+      RepositoryPolicyText:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: AllowPull
+            Effect: Allow
+            Principal:
+              AWS:
+                - "arn:aws:iam::427785492434:root" # Test Account
+                - "arn:aws:iam::134607788173:root" # Production Account
+            Action:
+              - "ecr:GetDownloadUrlForLayer",
+              - "ecr:BatchGetImage",
+              - "ecr:BatchCheckLayerAvailability"
 
   # ----------
   # CODEPIPELINE - Fiber API
