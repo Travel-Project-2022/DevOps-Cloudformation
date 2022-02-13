@@ -138,8 +138,7 @@ Resources:
       PolicyDocument:
         Statement:
           - Action:
-              - s3:GetObject
-              - s3:PutObject
+              - s3:*
             Effect: Allow
             Resource:
               - !Sub arn:aws:s3:::${FiberAPIInfrastructureCodePipelineArtifactsS3Bucket}
