@@ -51,8 +51,8 @@ Resources:
                 - "arn:aws:iam::427785492434:root" # Test Account
                 - "arn:aws:iam::134607788173:root" # Production Account
             Action:
-              - "ecr:GetDownloadUrlForLayer",
-              - "ecr:BatchGetImage",
+              - "ecr:GetDownloadUrlForLayer"
+              - "ecr:BatchGetImage"
               - "ecr:BatchCheckLayerAvailability"
 
   # ----------
