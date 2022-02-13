@@ -83,8 +83,7 @@ Resources:
         Type: S3
         Location: !Ref FiberAPICodePipelineArtifactsS3Bucket
       RestartExecutionOnUpdate: False
-      RoleArn:
-        Fn::GetAtt: [ CodePipeLineExecutionRole, Arn ]
+      RoleArn: !GetAtt CodePipeLineExecutionRole.Arn
       Stages: 
 
         # Download source code from Github Repo to source-output-artifacts path in S3 Bucket
@@ -132,6 +131,25 @@ Resources:
     Properties:
       BucketName: 'fiber-api-infrastructure-codepipeline-artifacts'
 
+  FiberAPIInfrastructureCodePipelineArtifactsS3BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref FiberAPIInfrastructureCodePipelineArtifactsS3Bucket
+      PolicyDocument:
+        Statement:
+          - Action:
+              - s3:GetObject
+              - s3:PutObject
+            Effect: Allow
+            Resource:
+              - !Sub arn:aws:s3:::${FiberAPIInfrastructureCodePipelineArtifactsS3Bucket}
+              - !Sub arn:aws:s3:::${FiberAPIInfrastructureCodePipelineArtifactsS3Bucket}/*
+            Principal:
+              AWS:
+                - arn:aws:iam::427785492434:role/DevOps-Account-CodePipeline-Role
+                - arn:aws:iam::427785492434:role/CloudFormation-Role
+                - !GetAtt CodePipeLineExecutionRole.Arn
+
   # Create CodePipeline with 2 stages (Source, Build)
   FiberAPIInfrastructurePipeline:
     Type: AWS::CodePipeline::Pipeline
@@ -141,8 +159,7 @@ Resources:
         Type: S3
         Location: !Ref FiberAPIInfrastructureCodePipelineArtifactsS3Bucket
       RestartExecutionOnUpdate: False
-      RoleArn:
-        Fn::GetAtt: [ CodePipeLineExecutionRole, Arn ]
+      RoleArn: !GetAtt CodePipeLineExecutionRole.Arn
       Stages:
         - Name: Source
           Actions:
