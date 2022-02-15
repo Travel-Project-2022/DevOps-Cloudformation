@@ -81,7 +81,7 @@ Resources:
               Configuration:
                 ActionMode: CREATE_UPDATE
                 Capabilities: CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
-                RoleArn: !Ref CloudFormationDeploymentRole.Arn
+                RoleArn: !GetAtt CloudFormationDeploymentRole.Arn
                 StackName: DevOps-Cloudformation
                 TemplatePath: 'source-output-artifacts::main.cfn.yaml'
               RunOrder: 1
