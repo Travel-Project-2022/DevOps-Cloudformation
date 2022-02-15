@@ -1,11 +1,11 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Role to be assumed by CodePipeline service cross account
+Description: Sub Account Seed to be deployed new accounts in US-EAST-1
 
 Resources:
   # ----------
   # IAM ROLES
   # ----------
-  CFRole:
+  DevOpsAccountCodePipelineRole:
     Type: AWS::IAM::Role
     Properties:
       RoleName: DevOps-Account-CodePipeline-Role
@@ -13,17 +13,19 @@ Resources:
         Statement:
           Effect: Allow
           Principal:
-            AWS:
-              - 387310632530 # Travel-Project-2022-DevOps
+            Service:
+              - codepipeline.amazonaws.com
+#            AWS:
+#              - arn:aws:iam::387310632530:role/CodePipeline-Execution-Role # Travel-Project-2022-DevOps
           Action:
             - sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AdministratorAccess
 
-  CFDeployerRole:
+  CloudFormationDeploymentRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: CloudFormation-Role
+      RoleName: CloudFormation-Deployment-Role
       AssumeRolePolicyDocument:
         Statement:
           Effect: Allow

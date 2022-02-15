@@ -5,19 +5,6 @@ Resources:
   # ----------
   # ROLES
   # ----------
-  # Access Role for CodePipeLine
-  CodePipeLineExecutionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: codepipeline.amazonaws.com
-            Action: 'sts:AssumeRole'
-      ManagedPolicyArns:
-        - 'arn:aws:iam::aws:policy/AdministratorAccess'
-
   # Access Role for CodeBuild
   CodeBuildExecutionRole:
     Type: AWS::IAM::Role
@@ -34,7 +21,7 @@ Resources:
   # ----------
   # ECR Repository
   # ----------
-  ContainerRepository: 
+  ContainerRepository:
     Type: AWS::ECR::Repository
     Properties: 
       RepositoryName: "fiber-api-repository"
@@ -48,12 +35,12 @@ Resources:
             Effect: Allow
             Principal:
               AWS:
-                - "arn:aws:iam::427785492434:root" # Test Account
-                - "arn:aws:iam::134607788173:root" # Production Account
+                - arn:aws:iam::427785492434:root # Test Account
+                - arn:aws:iam::134607788173:root # Production Account
             Action:
-              - "ecr:GetDownloadUrlForLayer"
-              - "ecr:BatchGetImage"
-              - "ecr:BatchCheckLayerAvailability"
+              - ecr:GetDownloadUrlForLayer
+              - ecr:BatchGetImage
+              - ecr:BatchCheckLayerAvailability
 
   # ----------
   # CODEPIPELINE - Fiber API
@@ -62,7 +49,7 @@ Resources:
   FiberAPICodePipelineArtifactsS3Bucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: 'fiber-api-codepipeline-artifacts'
+      BucketName: fiber-api-codepipeline-artifacts
 
   # Create the BuildProject with required Build information
   FiberAPIBuild:
@@ -95,9 +82,8 @@ Resources:
         Type: S3
         Location: !Ref FiberAPICodePipelineArtifactsS3Bucket
       RestartExecutionOnUpdate: False
-      RoleArn: !GetAtt CodePipeLineExecutionRole.Arn
-      Stages: 
-
+      RoleArn: !ImportValue CodePipelineExecutionRoleArn
+      Stages:
         # Download source code from Github Repo to source-output-artifacts path in S3 Bucket
         - 
           Name: Source
@@ -170,7 +156,7 @@ Resources:
             Principal:
               AWS:
                 - arn:aws:iam::427785492434:root
-                - !GetAtt CodePipeLineExecutionRole.Arn
+                - !ImportValue CodePipelineExecutionRoleArn
             Action:
               - kms:Encrypt
               - kms:Decrypt
@@ -204,9 +190,10 @@ Resources:
               - !Sub arn:aws:s3:::${FiberAPIInfrastructureCodePipelineArtifactsS3Bucket}/*
             Principal:
               AWS:
-                - arn:aws:iam::427785492434:role/DevOps-Account-CodePipeline-Role
-                - arn:aws:iam::427785492434:role/CloudFormation-Role
-                - !GetAtt CodePipeLineExecutionRole.Arn
+                - arn:aws:iam::427785492434:root
+#                - arn:aws:iam::427785492434:role/DevOps-Account-CodePipeline-Role
+#                - arn:aws:iam::427785492434:role/CloudFormation-Role
+                - !ImportValue CodePipelineExecutionRoleArn
 
   # Create CodePipeline with 2 stages (Source, Build)
   FiberAPIInfrastructurePipeline:
@@ -220,7 +207,7 @@ Resources:
           Id: !GetAtt FiberAPIInfrastructureKMSKey.Arn
           Type: KMS
       RestartExecutionOnUpdate: False
-      RoleArn: !GetAtt CodePipeLineExecutionRole.Arn
+      RoleArn: !ImportValue CodePipelineExecutionRoleArn
       Stages:
         - Name: Source
           Actions:
@@ -231,7 +218,7 @@ Resources:
                 Category: Source
                 Provider: CodeStarSourceConnection
               Configuration:
-                ConnectionArn: "arn:aws:codestar-connections:eu-west-1:387310632530:connection/b8d7c6ba-aead-4ab3-9f67-bc453cf0e924"
+                ConnectionArn: "arn:aws:codestar-connections:us-east-1:387310632530:connection/c6ff57ad-dab9-4ade-ac7d-ed4a5373c962"
                 FullRepositoryId: "Travel-Project-2022/Fiber-API-CloudFormation"
                 BranchName: "master"
                 OutputArtifactFormat: "CODE_ZIP"
@@ -248,11 +235,10 @@ Resources:
                 Version: 1
               InputArtifacts:
                 - Name: source-output-artifacts
-              RoleArn: arn:aws:iam::427785492434:role/DevOps-Account-CodePipeline-Role
               Configuration:
                 ActionMode: CREATE_UPDATE
                 Capabilities: CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
-                RoleArn: arn:aws:iam::427785492434:role/CloudFormation-Role
+                RoleArn: arn:aws:iam::427785492434:role/CloudFormation-Deployment-Role
                 StackName: Fiber-API-Infrastructure
                 TemplatePath: 'source-output-artifacts::main.cfn.yaml'
               RunOrder: 1
