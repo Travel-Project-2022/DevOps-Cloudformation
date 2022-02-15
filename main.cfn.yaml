@@ -95,7 +95,7 @@ Resources:
                 Category: Source
                 Provider: CodeStarSourceConnection
               Configuration:
-                ConnectionArn: "arn:aws:codestar-connections:eu-west-1:387310632530:connection/b8d7c6ba-aead-4ab3-9f67-bc453cf0e924"
+                ConnectionArn: "arn:aws:codestar-connections:us-east-1:387310632530:connection/c6ff57ad-dab9-4ade-ac7d-ed4a5373c962"
                 FullRepositoryId: "Travel-Project-2022/Fiber-API"
                 BranchName: "master"
                 OutputArtifactFormat: "CODE_ZIP"
@@ -228,6 +228,7 @@ Resources:
         - Name: Deploy
           Actions:
             - Name: Deploy
+              RoleArn: arn:aws:iam::427785492434:role/DevOps-Account-CodePipeline-Role
               ActionTypeId:
                 Category: Deploy
                 Owner: AWS
