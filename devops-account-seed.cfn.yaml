@@ -48,6 +48,7 @@ Resources:
 
   # Create CodePipeline with 2 stages (Source, Build)
   DevOpsCloudFormationCodePipeline:
+    Condition: IsMainRegion
     Type: AWS::CodePipeline::Pipeline
     Properties:
       Name: DevOps-Cloudformation-CodePipeline
@@ -58,11 +59,11 @@ Resources:
           Region: !Ref AWS::Region
         - ArtifactStore:
             Type: S3
-            Location: !ImportValue DevOpsCloudFormationCodePipelineArtifactsS3Bucket-eu-west-1
+            Location: devops-cloudformation-codepipeline-artifacts-eu-west-1
           Region: 'eu-west-1'
         - ArtifactStore:
             Type: S3
-            Location: !ImportValue DevOpsCloudFormationCodePipelineArtifactsS3Bucket-us-west-2
+            Location: devops-cloudformation-codepipeline-artifacts-us-west-2
           Region: 'us-west-2'
       RestartExecutionOnUpdate: False
       RoleArn: !GetAtt CodePipelineExecutionRole.Arn
@@ -139,11 +140,7 @@ Resources:
 
 Outputs:
   CodePipelineExecutionRoleArn:
+    Condition: IsMainRegion
     Value: !GetAtt CodePipelineExecutionRole.Arn
     Export:
       Name: CodePipelineExecutionRoleArn
-
-  DevOpsCloudFormationCodePipelineArtifactsS3Bucket:
-    Value: !Ref DevOpsCloudFormationCodePipelineArtifactsS3Bucket
-    Export:
-      Name: !Sub 'DevOpsCloudFormationCodePipelineArtifactsS3Bucket-${AWS::Region}'
