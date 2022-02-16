@@ -147,7 +147,7 @@ Resources:
   # CODEPIPELINE - Fiber API Infrastructure
   # ----------
   FiberAPIInfrastructureKMSPrimaryKey:
-    Condition: IsPrimaryRegion
+    Condition: IsMainRegion
     Type: AWS::KMS::Key
     Properties:
       Description: Used by Assumed Roles in Test/Prod accounts to Encrypt/Decrypt code
@@ -190,7 +190,7 @@ Resources:
             Resource: "*"
 
   PrimaryKMSAlias:
-    Condition: IsPrimaryRegion
+    Condition: IsMainRegion
     Type: AWS::KMS::Alias
     Properties:
       AliasName: alias/FiberAPIInfrastructure
