@@ -55,7 +55,7 @@ Resources:
     Properties:
       ReplicationConfiguration:
         Rules:
-          - Destinations:
+          - Destinations: # RepositoryPolicyText must be added manually :(
               - Region: "eu-west-1"
                 RegistryId: !Ref AWS::AccountId
               - Region: "us-west-2"
