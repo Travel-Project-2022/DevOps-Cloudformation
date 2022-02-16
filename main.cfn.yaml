@@ -226,7 +226,7 @@ Resources:
             Type: S3
             Location: !Ref FiberAPIInfrastructureCodePipelineArtifactsS3Bucket
             EncryptionKey:
-              Id: !Join [ "", [ "arn:aws:kms:us-east-1:387310632530", !Ref KMSAlias ] ]
+              Id: !Join [ "", [ "arn:aws:kms:us-east-1:387310632530:", !Ref KMSAlias ] ]
               Type: KMS
           Region: !Ref AWS::Region
         - ArtifactStore:
