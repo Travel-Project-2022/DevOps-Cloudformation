@@ -48,6 +48,18 @@ Resources:
               - ecr:BatchGetImage
               - ecr:BatchCheckLayerAvailability
 
+  ContainerRepositoryReplication:
+    Condition: IsMainRegion
+    Type: AWS::ECR::ReplicationConfiguration
+    Properties:
+      ReplicationConfiguration:
+        Rules:
+          - Destinations:
+              - Region: "eu-west-1"
+                RegistryId: !Ref AWS::AccountId
+              - Region: "us-west-2"
+                RegistryId: !Ref AWS::AccountId
+
   # ----------
   # CODEPIPELINE - Fiber API
   # ----------
@@ -221,14 +233,14 @@ Resources:
             Type: S3
             Location: !ImportValue FiberAPIInfrastructureCodePipelineArtifactsS3Bucket-eu-west-1
             EncryptionKey:
-              Id: !ImportValue FiberAPIInfrastructureKMSKeyArn-eu-west-1
+              Id: FiberAPIInfrastructureKMSKeyArn-eu-west-1
               Type: KMS
           Region: 'eu-west-1'
         - ArtifactStore:
             Type: S3
             Location: !ImportValue FiberAPIInfrastructureCodePipelineArtifactsS3Bucket-us-west-2
             EncryptionKey:
-              Id: !ImportValue FiberAPIInfrastructureKMSKeyArn-us-west-2
+              Id: FiberAPIInfrastructureKMSKeyArn-us-west-2
               Type: KMS
           Region: 'us-west-2'
       RestartExecutionOnUpdate: False
@@ -252,7 +264,8 @@ Resources:
                 - Name: source-output-artifacts
         - Name: Deploy
           Actions:
-            - Name: Deploy
+            - Name: US-East-1-Deployment
+              Region: us-east-1
               RoleArn: arn:aws:iam::427785492434:role/DevOps-Account-CodePipeline-Role
               ActionTypeId:
                 Category: Deploy
@@ -269,6 +282,42 @@ Resources:
                 TemplatePath: 'source-output-artifacts::main.cfn.yaml'
               RunOrder: 1
               OutputArtifacts: []
+            - Name: EU-West-1-Deployment
+              Region: eu-west-1
+              RoleArn: arn:aws:iam::427785492434:role/DevOps-Account-CodePipeline-Role
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: 1
+              InputArtifacts:
+                - Name: source-output-artifacts
+              Configuration:
+                ActionMode: CREATE_UPDATE
+                Capabilities: CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
+                RoleArn: arn:aws:iam::427785492434:role/CloudFormation-Deployment-Role
+                StackName: Fiber-API-Infrastructure
+                TemplatePath: 'source-output-artifacts::main.cfn.yaml'
+              RunOrder: 1
+              OutputArtifacts: [ ]
+            - Name: US-West-2-Deployment
+              Region: us-west-2
+              RoleArn: arn:aws:iam::427785492434:role/DevOps-Account-CodePipeline-Role
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: 1
+              InputArtifacts:
+                - Name: source-output-artifacts
+              Configuration:
+                ActionMode: CREATE_UPDATE
+                Capabilities: CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
+                RoleArn: arn:aws:iam::427785492434:role/CloudFormation-Deployment-Role
+                StackName: Fiber-API-Infrastructure
+                TemplatePath: 'source-output-artifacts::main.cfn.yaml'
+              RunOrder: 1
+              OutputArtifacts: [ ]
 
 Outputs:
   FiberAPIInfrastructureCodePipelineArtifactsS3Bucket:
