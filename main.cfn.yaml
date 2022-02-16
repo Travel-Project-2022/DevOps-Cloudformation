@@ -202,7 +202,6 @@ Resources:
     Properties:
       PrimaryKeyArn: arn:aws:kms:us-east-1:387310632530:alias/FiberAPIInfrastructure
       Description: Used by Assumed Roles in Test/Prod accounts to Encrypt/Decrypt code
-      EnableKeyRotation: true
       KeyPolicy:
         Version: "2012-10-17"
         Id: FiberAPIInfrastructure-Key
