@@ -1,12 +1,17 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: >-
   This template configures resources in the DevOps Account
+
+Conditions:
+  IsMainRegion: !Equals [!Ref AWS::Region, 'us-east-1']
+
 Resources:
   # ----------
   # ROLES
   # ----------
   # Access Role for CodeBuild
   CodeBuildExecutionRole:
+    Condition: IsMainRegion
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -22,6 +27,7 @@ Resources:
   # ECR Repository
   # ----------
   ContainerRepository:
+    Condition: IsMainRegion
     Type: AWS::ECR::Repository
     Properties: 
       RepositoryName: "fiber-api-repository"
@@ -47,12 +53,14 @@ Resources:
   # ----------
   # S3 Bucket for build artifacts
   FiberAPICodePipelineArtifactsS3Bucket:
+    Condition: IsMainRegion
     Type: AWS::S3::Bucket
     Properties:
       BucketName: fiber-api-codepipeline-artifacts
 
   # Create the BuildProject with required Build information
   FiberAPIBuild:
+    Condition: IsMainRegion
     Type: AWS::CodeBuild::Project
     Properties:
       Name: Fiber-API-Build
@@ -74,8 +82,9 @@ Resources:
         BuildSpec: buildspec.yml
 
   # Create CodePipeline with 2 stages (Source, Build)
-  FiberAPIPipeline: 
-    Type: AWS::CodePipeline::Pipeline 
+  FiberAPIPipeline:
+    Condition: IsMainRegion
+    Type: AWS::CodePipeline::Pipeline
     Properties:
       Name: Fiber-API-CodePipeline
       ArtifactStore:
@@ -174,7 +183,7 @@ Resources:
   FiberAPIInfrastructureCodePipelineArtifactsS3Bucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: 'fiber-api-infrastructure-codepipeline-artifacts'
+      BucketName: !Sub 'fiber-api-infrastructure-codepipeline-artifacts-${AWS::Region}'
 
   FiberAPIInfrastructureCodePipelineArtifactsS3BucketPolicy:
     Type: AWS::S3::BucketPolicy
@@ -190,22 +199,38 @@ Resources:
               - !Sub arn:aws:s3:::${FiberAPIInfrastructureCodePipelineArtifactsS3Bucket}/*
             Principal:
               AWS:
-                - arn:aws:iam::427785492434:root
-#                - arn:aws:iam::427785492434:role/DevOps-Account-CodePipeline-Role
-#                - arn:aws:iam::427785492434:role/CloudFormation-Role
+                - arn:aws:iam::427785492434:role/DevOps-Account-CodePipeline-Role
+                - arn:aws:iam::427785492434:role/CloudFormation-Role
                 - !ImportValue CodePipelineExecutionRoleArn
 
   # Create CodePipeline with 2 stages (Source, Build)
   FiberAPIInfrastructurePipeline:
+    Condition: IsMainRegion
     Type: AWS::CodePipeline::Pipeline
     Properties:
       Name: Fiber-API-Infrastructure-CodePipeline
-      ArtifactStore:
-        Type: S3
-        Location: !Ref FiberAPIInfrastructureCodePipelineArtifactsS3Bucket
-        EncryptionKey:
-          Id: !GetAtt FiberAPIInfrastructureKMSKey.Arn
-          Type: KMS
+      ArtifactStores:
+        - ArtifactStore:
+            Type: S3
+            Location: !Ref FiberAPIInfrastructureCodePipelineArtifactsS3Bucket
+            EncryptionKey:
+              Id: !GetAtt FiberAPIInfrastructureKMSKey.Arn
+              Type: KMS
+          Region: !Ref AWS::Region
+        - ArtifactStore:
+            Type: S3
+            Location: !ImportValue FiberAPIInfrastructureCodePipelineArtifactsS3Bucket-eu-west-1
+            EncryptionKey:
+              Id: !ImportValue FiberAPIInfrastructureKMSKeyArn-eu-west-1
+              Type: KMS
+          Region: 'eu-west-1'
+        - ArtifactStore:
+            Type: S3
+            Location: !ImportValue FiberAPIInfrastructureCodePipelineArtifactsS3Bucket-us-west-2
+            EncryptionKey:
+              Id: !ImportValue FiberAPIInfrastructureKMSKeyArn-us-west-2
+              Type: KMS
+          Region: 'us-west-2'
       RestartExecutionOnUpdate: False
       RoleArn: !ImportValue CodePipelineExecutionRoleArn
       Stages:
@@ -244,3 +269,14 @@ Resources:
                 TemplatePath: 'source-output-artifacts::main.cfn.yaml'
               RunOrder: 1
               OutputArtifacts: []
+
+Outputs:
+  FiberAPIInfrastructureCodePipelineArtifactsS3Bucket:
+    Value: !Ref FiberAPIInfrastructureCodePipelineArtifactsS3Bucket
+    Export:
+      Name: !Sub 'FiberAPIInfrastructureCodePipelineArtifactsS3Bucket-${AWS::Region}'
+
+  FiberAPIInfrastructureKMSKeyArn:
+    Value: !GetAtt FiberAPIInfrastructureKMSKey.Arn
+    Export:
+      Name: !Sub 'FiberAPIInfrastructureKMSKeyArn-${AWS::Region}'
