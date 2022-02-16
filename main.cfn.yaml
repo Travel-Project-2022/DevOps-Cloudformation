@@ -200,8 +200,8 @@ Resources:
             Principal:
               AWS:
                 - arn:aws:iam::427785492434:role/DevOps-Account-CodePipeline-Role
-                - arn:aws:iam::427785492434:role/CloudFormation-Role
-                - arn:aws:iam::427785492434:role/DevOps-Account-CodePipeline-Role
+                - arn:aws:iam::427785492434:role/CloudFormation-Deployment-Role
+                - arn:aws:iam::387310632530:role/CodePipeline-Execution-Role
 
   # Create CodePipeline with 2 stages (Source, Build)
   FiberAPIInfrastructurePipeline:
