@@ -13,8 +13,6 @@ Resources:
         Statement:
           Effect: Allow
           Principal:
-            Service:
-              - codepipeline.amazonaws.com
             AWS:
               - arn:aws:iam::387310632530:role/CodePipeline-Execution-Role # Travel-Project-2022-DevOps
           Action:
