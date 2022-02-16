@@ -226,21 +226,21 @@ Resources:
             Type: S3
             Location: !Ref FiberAPIInfrastructureCodePipelineArtifactsS3Bucket
             EncryptionKey:
-              Id: !GetAtt FiberAPIInfrastructureKMSKey.Arn
+              Id: !Join [ "", [ "arn:aws:kms:us-east-1:387310632530", !Ref KMSAlias ] ]
               Type: KMS
           Region: !Ref AWS::Region
         - ArtifactStore:
             Type: S3
             Location: fiber-api-infrastructure-codepipeline-artifacts-eu-west-1
             EncryptionKey:
-              Id: FiberAPIInfrastructureKMSKeyArn-eu-west-1
+              Id: arn:aws:kms:eu-west-1:387310632530:alias/FiberAPIInfrastructure-xaccounts
               Type: KMS
           Region: 'eu-west-1'
         - ArtifactStore:
             Type: S3
             Location: fiber-api-infrastructure-codepipeline-artifacts-us-west-2
             EncryptionKey:
-              Id: FiberAPIInfrastructureKMSKeyArn-us-west-2
+              Id: arn:aws:kms:us-west-2:387310632530:alias/FiberAPIInfrastructure-xaccounts
               Type: KMS
           Region: 'us-west-2'
       RestartExecutionOnUpdate: False
