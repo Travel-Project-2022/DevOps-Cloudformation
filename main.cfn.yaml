@@ -114,55 +114,55 @@ Resources:
     Properties:
       AliasName: alias/FiberAPI
       TargetKeyId: !Ref FiberAPIKMSPrimaryKey
-#
-#  FiberAPIKMSReplicaKey:
-#    Condition: IsSecondaryRegion
-#    Type: AWS::KMS::ReplicaKey
-#    Properties:
-#      PrimaryKeyArn: arn:aws:kms:us-east-1:387310632530:key/mrk-0462dada2a0140ce86b9bcf2913317dc # Does not support alias
-#      Description: Used by Assumed Roles in Test/Prod accounts to Encrypt/Decrypt code
-#      KeyPolicy:
-#        Version: "2012-10-17"
-#        Id: FiberAPIInfrastructure-Key
-#        Statement:
-#          - Sid: Allows admin of the key
-#            Effect: Allow
-#            Principal:
-#              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
-#            Action:
-#              - "kms:Create*"
-#              - "kms:Describe*"
-#              - "kms:Enable*"
-#              - "kms:List*"
-#              - "kms:Put*"
-#              - "kms:Update*"
-#              - "kms:Revoke*"
-#              - "kms:Disable*"
-#              - "kms:Get*"
-#              - "kms:Delete*"
-#              - "kms:ScheduleKeyDeletion"
-#              - "kms:CancelKeyDeletion"
-#            Resource: "*"
-#          - Sid: Allow use of the key for CryptoGraphy Lambda
-#            Effect: Allow
-#            Principal:
-#              AWS:
-#                - arn:aws:iam::427785492434:root
-#                - arn:aws:iam::387310632530:role/CodePipeline-Execution-Role
-#            Action:
-#              - kms:Encrypt
-#              - kms:Decrypt
-#              - kms:ReEncrypt*
-#              - kms:GenerateDataKey*
-#              - kms:DescribeKey
-#            Resource: "*"
 
-#  FiberAPIReplicaKMSAlias:
-#    Condition: IsSecondaryRegion
-#    Type: AWS::KMS::Alias
-#    Properties:
-#      AliasName: alias/FiberAPI
-#      TargetKeyId: !Ref FiberAPIKMSReplicaKey
+  FiberAPIKMSReplicaKey:
+    Condition: IsSecondaryRegion
+    Type: AWS::KMS::ReplicaKey
+    Properties:
+      PrimaryKeyArn: arn:aws:kms:us-east-1:387310632530:key/mrk-52292e44b16140869c8b4892a0c28441 # Does not support alias
+      Description: Used by Assumed Roles in Test/Prod accounts to Encrypt/Decrypt code
+      KeyPolicy:
+        Version: "2012-10-17"
+        Id: FiberAPIInfrastructure-Key
+        Statement:
+          - Sid: Allows admin of the key
+            Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action:
+              - "kms:Create*"
+              - "kms:Describe*"
+              - "kms:Enable*"
+              - "kms:List*"
+              - "kms:Put*"
+              - "kms:Update*"
+              - "kms:Revoke*"
+              - "kms:Disable*"
+              - "kms:Get*"
+              - "kms:Delete*"
+              - "kms:ScheduleKeyDeletion"
+              - "kms:CancelKeyDeletion"
+            Resource: "*"
+          - Sid: Allow use of the key for CryptoGraphy Lambda
+            Effect: Allow
+            Principal:
+              AWS:
+                - arn:aws:iam::427785492434:root
+                - arn:aws:iam::387310632530:role/CodePipeline-Execution-Role
+            Action:
+              - kms:Encrypt
+              - kms:Decrypt
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+              - kms:DescribeKey
+            Resource: "*"
+
+  FiberAPIReplicaKMSAlias:
+    Condition: IsSecondaryRegion
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: alias/FiberAPI
+      TargetKeyId: !Ref FiberAPIKMSReplicaKey
 
   FiberAPICodePipelineArtifactsS3Bucket:
     Type: AWS::S3::Bucket
@@ -172,15 +172,15 @@ Resources:
   FiberAPICodePipelineArtifactsS3BucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
-      Bucket: !Ref FiberAPIInfrastructureCodePipelineArtifactsS3Bucket
+      Bucket: !Ref FiberAPICodePipelineArtifactsS3Bucket
       PolicyDocument:
         Statement:
           - Action:
               - s3:*
             Effect: Allow
             Resource:
-              - !Sub arn:aws:s3:::${FiberAPIInfrastructureCodePipelineArtifactsS3Bucket}
-              - !Sub arn:aws:s3:::${FiberAPIInfrastructureCodePipelineArtifactsS3Bucket}/*
+              - !Sub arn:aws:s3:::${FiberAPICodePipelineArtifactsS3Bucket}
+              - !Sub arn:aws:s3:::${FiberAPICodePipelineArtifactsS3Bucket}/*
             Principal:
               AWS:
                 - arn:aws:iam::427785492434:role/DevOps-Account-CodePipeline-Role
