@@ -193,6 +193,7 @@ Resources:
     Type: AWS::CodeBuild::Project
     Properties:
       Name: Fiber-API-Build
+      ResourceAccessRole: arn:aws:iam::387310632530:role/CodePipeline-Execution-Role
       Artifacts:
         Type: CODEPIPELINE
       Environment:
