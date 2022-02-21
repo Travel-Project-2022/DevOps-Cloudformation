@@ -8,23 +8,6 @@ Conditions:
 
 Resources:
   # ----------
-  # ROLES
-  # ----------
-  # Access Role for CodeBuild
-  CodeBuildExecutionRole:
-    Condition: IsMainRegion
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Statement:
-          Effect: Allow
-          Principal:
-            Service: codebuild.amazonaws.com
-          Action: sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/AdministratorAccess
-
-  # ----------
   # ECR Repository
   # ----------
   ContainerRepository:
@@ -100,6 +83,7 @@ Resources:
               AWS:
                 - arn:aws:iam::427785492434:root
                 - arn:aws:iam::387310632530:role/CodePipeline-Execution-Role
+                - arn:aws:iam::387310632530:role/CodeBuild-Execution-Role
             Action:
               - kms:Encrypt
               - kms:Decrypt
@@ -149,6 +133,7 @@ Resources:
               AWS:
                 - arn:aws:iam::427785492434:root
                 - arn:aws:iam::387310632530:role/CodePipeline-Execution-Role
+                - arn:aws:iam::387310632530:role/CodeBuild-Execution-Role
             Action:
               - kms:Encrypt
               - kms:Decrypt
@@ -186,6 +171,7 @@ Resources:
                 - arn:aws:iam::427785492434:role/DevOps-Account-CodePipeline-Role
                 - arn:aws:iam::427785492434:role/CloudFormation-Deployment-Role
                 - arn:aws:iam::387310632530:role/CodePipeline-Execution-Role
+                - arn:aws:iam::387310632530:role/CodeBuild-Execution-Role
 
   # Create the BuildProject with required Build information
   FiberAPIBuild:
@@ -193,7 +179,7 @@ Resources:
     Type: AWS::CodeBuild::Project
     Properties:
       Name: Fiber-API-Build
-      ResourceAccessRole: arn:aws:iam::387310632530:role/CodePipeline-Execution-Role
+      ServiceRole: arn:aws:iam::387310632530:role/CodeBuild-Execution-Role
       Artifacts:
         Type: CODEPIPELINE
       Environment:
@@ -205,7 +191,6 @@ Resources:
         EnvironmentVariables:
           - Name: ECR_REPOSITORY_URI
             Value: !Join [ ".", [ !Ref "AWS::AccountId", "dkr.ecr", !Ref "AWS::Region", !Join [ "/", [ "amazonaws.com", !Ref "ContainerRepository" ] ] ] ]
-      ServiceRole: !Ref CodeBuildExecutionRole
       Source:
         Type: CODEPIPELINE
         # This file (buildspec.yml In Source code) contains commands to Create and Push a docker image to the ECR_REPOSITORY_URI
