@@ -280,7 +280,53 @@ Resources:
                 DeploymentGroupName: Fiber-API-deployment-group
                 TaskDefinitionTemplateArtifact: source-output-artifacts
                 AppSpecTemplateArtifact: source-output-artifacts
-                AppSpecTemplatePath: appspec.yaml
+                AppSpecTemplatePath: appspec.yml
+                TaskDefinitionTemplatePath: taskdef.json
+                Image1ArtifactName: build-output-artifacts
+                Image1ContainerName: IMAGE1_NAME
+              RunOrder: 1
+              OutputArtifacts: [ ]
+            - Name: US-West-2-Deployment
+              Region: us-west-2
+              RoleArn: arn:aws:iam::427785492434:role/DevOps-Account-CodePipeline-Role
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CodeDeployToECS
+                Version: '1'
+              Namespace: DeployVariables
+              InputArtifacts:
+                - Name: source-output-artifacts
+                - Name: build-output-artifacts
+              Configuration:
+                ApplicationName: Fiber-API
+                DeploymentGroupName: Fiber-API-deployment-group
+                TaskDefinitionTemplateArtifact: source-output-artifacts
+                AppSpecTemplateArtifact: source-output-artifacts
+                AppSpecTemplatePath: appspec.yml
+                TaskDefinitionTemplatePath: taskdef.json
+                Image1ArtifactName: build-output-artifacts
+                Image1ContainerName: IMAGE1_NAME
+              RunOrder: 1
+              OutputArtifacts: [ ]
+            - Name: EU-West-1-Deployment
+              Region: eu-west-1
+              RoleArn: arn:aws:iam::427785492434:role/DevOps-Account-CodePipeline-Role
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CodeDeployToECS
+                Version: '1'
+              Namespace: DeployVariables
+              InputArtifacts:
+                - Name: source-output-artifacts
+                - Name: build-output-artifacts
+              Configuration:
+                ApplicationName: Fiber-API
+                DeploymentGroupName: Fiber-API-deployment-group
+                TaskDefinitionTemplateArtifact: source-output-artifacts
+                AppSpecTemplateArtifact: source-output-artifacts
+                AppSpecTemplatePath: appspec.yml
                 TaskDefinitionTemplatePath: taskdef.json
                 Image1ArtifactName: build-output-artifacts
                 Image1ContainerName: IMAGE1_NAME
