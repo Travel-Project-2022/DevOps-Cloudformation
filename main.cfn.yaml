@@ -271,7 +271,7 @@ Resources:
                 Owner: AWS
                 Provider: CodeDeployToECS
                 Version: '1'
-              Namespace: DeployVariables
+              Namespace: US-East-1-DeployVariables
               InputArtifacts:
                 - Name: source-output-artifacts
                 - Name: build-output-artifacts
@@ -294,7 +294,7 @@ Resources:
                 Owner: AWS
                 Provider: CodeDeployToECS
                 Version: '1'
-              Namespace: DeployVariables
+              Namespace: US-West-2-DeployVariables
               InputArtifacts:
                 - Name: source-output-artifacts
                 - Name: build-output-artifacts
@@ -317,7 +317,7 @@ Resources:
                 Owner: AWS
                 Provider: CodeDeployToECS
                 Version: '1'
-              Namespace: DeployVariables
+              Namespace: EU-West-1-DeployVariables
               InputArtifacts:
                 - Name: source-output-artifacts
                 - Name: build-output-artifacts
