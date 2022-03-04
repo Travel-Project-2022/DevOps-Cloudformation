@@ -282,6 +282,8 @@ Resources:
                 AppSpecTemplateArtifact: source-output-artifacts
                 AppSpecTemplatePath: appspec.yml
                 TaskDefinitionTemplatePath: taskdef.us-east-1.json
+                Image1ArtifactName: build-output-artifacts
+                Image1ContainerName: IMAGE1_NAME
               RunOrder: 1
               OutputArtifacts: [ ]
             - Name: US-West-2-Deployment
@@ -303,6 +305,8 @@ Resources:
                 AppSpecTemplateArtifact: source-output-artifacts
                 AppSpecTemplatePath: appspec.yml
                 TaskDefinitionTemplatePath: taskdef.us-west-2.json
+                Image1ArtifactName: build-output-artifacts
+                Image1ContainerName: IMAGE1_NAME
               RunOrder: 1
               OutputArtifacts: [ ]
             - Name: EU-West-1-Deployment
@@ -324,6 +328,8 @@ Resources:
                 AppSpecTemplateArtifact: source-output-artifacts
                 AppSpecTemplatePath: appspec.yml
                 TaskDefinitionTemplatePath: taskdef.eu-west-1.json
+                Image1ArtifactName: build-output-artifacts
+                Image1ContainerName: IMAGE1_NAME
               RunOrder: 1
               OutputArtifacts: [ ]
 
